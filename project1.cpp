@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
-#include <armadillo>
+#include "armadillo"
 #include <iomanip>
 #include <Windows.h>
 #include <ctime>
@@ -15,10 +15,10 @@ using namespace arma;
 
 void solve_c(int n, double *x, double *v);
 void make_file(int n, double *x, double *v);
-vec solve_LU(int n, double *x);
-vec solve_LU_d(int n, double *x);
-void make_file_LU(int n, double *x, vec v_LU);
-int time(int n, double *x, double *v, vec v_LU);
+//vec solve_LU(int n, double *x);
+//vec solve_LU_d(int n, double *x);
+//void make_file_LU(int n, double *x, vec v_LU);
+//int time(int n, double *x, double *v, vec v_LU);
 double* Reerror(double *a, double *b, int n);
 void make_file_err(double* err_pointer, int n);
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	for (i = 1; i < argc; i++) {
 		if ((string(argv[i]).find("-") == 0 && string(argv[i]).find("t") != string::npos)) {
 			// Time flag (-t):
-			time(n, u, v, v_LU);
+			//time(n, u, v, v_LU);
 			solved = 1;
 		}
 		if ((string(argv[i]).find("-") == 0 && string(argv[i]).find("s") != string::npos) || argc == 2) {
@@ -72,21 +72,20 @@ int main(int argc, char* argv[])
 			solved = 1;
 			if (string(argv[i]).find("sLU") != string::npos) {
 				// LU decomposition (-sLU)
-				v_LU.subvec(1, n) = solve_LU_d(n, u);
-				make_file_LU(n, u, v_LU);
+				//v_LU.subvec(1, n) = solve_LU_d(n, u);
+				//make_file_LU(n, u, v_LU);
 			}
 			else if(string(argv[i]).find("sc") != string::npos){
 				// c (-sc)
-				if (solved == false) {
-					solve_c(n, u, v);
-				}
+				solve_c(n, u, v);
+				
 				make_file(n, u, v);
 				solved = 1;
 			}
 			else {
 				// LU decomposition (-s)
-				v_LU.subvec(1, n) = solve_LU(n, u);
-				make_file_LU(n, u, v_LU);
+				//v_LU.subvec(1, n) = solve_LU(n, u);
+				//make_file_LU(n, u, v_LU);
 			}
 		}
 		if (solved == 1 && (string(argv[i]).find("-") == 0 && string(argv[i]).find("err") != string::npos)) {
@@ -108,6 +107,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	cout << "number of floating point numbers = " << 3 * (n - 1) << endl;
 	cout << "check result in text file" << endl;
 	system("pause");
 
@@ -157,7 +157,6 @@ void solve_c(int n, double *u, double *v)
 	for (i = n - 1; i>0; i--) {
 		v[i] = (f[i - 1] + v[i + 1]) / d[i - 1];
 	}
-	cout << "number of floating point numbers = " << 3 * (n - 1) << endl;
 }
 
 void make_file(int n, double *u, double *v)
@@ -178,7 +177,46 @@ void make_file(int n, double *u, double *v)
 }
 
 
+double* Reerror(double *a, double *b, int n)
+{
+	double* reerr;
+	reerr = new double[n + 1];
+	for (int i = 1; i <= n; i++) {
+		reerr[i] = log10(fabs((a[i] - b[i]) / b[i]));
 
+		if (i == 1) {
+			reerr[0] = reerr[i];
+		}
+		else {
+			if (reerr[0] < reerr[i]) {
+				reerr[0] = reerr[i];
+			}
+		}
+	}
+
+
+	return reerr;
+}
+
+void make_file_err(double* err_pointer, int n) {
+	int i;
+
+	char filename[20];
+
+	fstream myfile;
+	sprintf_s(filename, "error_list_n%d.txt", n);
+	myfile.open(filename, ios::out);
+	myfile << "maximum error : " << err_pointer[0] << endl;
+	myfile << "error list : " << endl;
+	for (i = 1; i <= n + 1; i++) {
+		myfile << setw(10) << err_pointer[i] << endl;
+	}
+	myfile.close();
+}
+
+
+
+/*
 vec solve_LU(int n, double *u)
 {
 	int i, j;
@@ -225,10 +263,10 @@ vec solve_LU(int n, double *u)
 
 	return solve(U, z);
 }
+*/
 
 
-
-
+/*
 vec solve_LU_d(int n, double *u)
 {
 	int i, j;
@@ -311,42 +349,5 @@ int time(int n, double *u, double *v, vec v_LU)
 
 	return 0;
 }
-
-double* Reerror(double *a, double *b, int n)
-{
-	double* reerr;
-	reerr = new double[n + 1];
-	for (int i = 1; i <= n; i++) {
-		reerr[i] = log10(fabs((a[i] - b[i]) / b[i]));
-
-		if (i == 1) {
-			reerr[0] = reerr[i];
-		}
-		else {
-			if (reerr[0] < reerr[i]) {
-				reerr[0] = reerr[i];
-			}
-		}
-	}
-	
-
-	return reerr;
-}
-
-void make_file_err(double* err_pointer, int n) {
-	int i;
-
-	char filename[20];
-
-	fstream myfile;
-	sprintf_s(filename, "error_list_n%d.txt", n);
-	myfile.open(filename, ios::out);
-	myfile << "maximum error : " << err_pointer[0] << endl;
-	myfile << "error list : " << endl;
-	for (i = 1; i <= n + 1; i++) {
-		myfile << setw(10) << err_pointer[i] << endl;
-	}
-	myfile.close();
-}
-
+*/
 //*/
