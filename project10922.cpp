@@ -176,26 +176,6 @@ void solve_c(int n,double h,double* x,double* f, double *u, double *v)
     c[n] = 0;
     a[1] = 0;
 
-    // initialize x elements
-//    for (i = 1; i <= n; i++) {
-//        x[i] = h*i;
-//    }
-//   x[0]=0;
-//   x[n+1]=1;
-
-    // boundary condition
-//    v[0] = 0;
-//    v[n + 1] = 0;
-//    u[0] = 0;
-//    u[n+1] = 0;
-
-
-    // fill f,the right part of equation
-//    for (i = 1; i <= n; i++) {
-//        f[i] = h*h * 100 * exp(-10 * x[i]);
-//    }
-//    f[0]=0;
-
     double d_temp = d[1];
     v[1] = f[1]/d_temp;
     for(i = 2;i<=n;i++){
@@ -208,10 +188,6 @@ void solve_c(int n,double h,double* x,double* f, double *u, double *v)
     for(i = n-1; i >=1;i--){
         v[i] -= diag_temp[i+1]*v[i+1];
     }
-
-//    for( i = 1; i <= n; i++){
-//        u[i] = 1.0-(1-exp(-10))*x[i]-exp(-10*x[i]);
-//    }
 }
 
 //make file for u[i] and v[i] with optimized algorithm
@@ -250,8 +226,6 @@ double* Reerror(double *a, double *b, int n)
             }
         }
     }
-
-
     return reerr;
 }
 
@@ -290,15 +264,7 @@ vec solve_LU(int n, double *x,double* f)
             A(i, j) = i + j + 3;
         }
     }
-    //h = 1.0 / (n + 1);
-
-    // initialize x elements
-//    for (i = 1; i <= n; i++) {
-//        x[i] = h*i;
-//    }
-//   x[0]=0;
-//   x[n+1]=1;
-
+    
    // fill vec F to use function LU
    for (i = 1; i <= n; i++) {
        F[i-1] = f[i];
@@ -343,15 +309,6 @@ vec solve_LU_d(int n, double *x,double *f)
             }
         }
     }
-  //  h = 1.0 / (n + 1);
-    // initialize x elements
-//    double* x;
-//    x=new double[n+2];
-//    for (i = 1; i <= n; i++) {
-//        x[i] = h*i;
-//    }
-//   x[0]=0;
-//   x[n+1]=1;
 
    // fill f,the right part of equation
    for (i = 1; i <= n; i++) {
